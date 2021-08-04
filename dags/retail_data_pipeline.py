@@ -14,11 +14,12 @@ from airflow.operators.bash_operator import BashOperator
 BUCKET_NAME = Variable.get("BUCKET_NAME")
 
 # Default arguments for defining the DAG
+# start_date must be sometime in the past, else DAG won't run
 default_args = {
     "owner": "airflow",
     "depends_on_past": True,
     "wait_for_downstream": True,
-    "start_date": datetime.now(),
+    "start_date": datetime(2021, 8, 1),
     "email": ["airflow@airflow.com"],
     "email_on_failure": False,
     "email_on_retry": False,

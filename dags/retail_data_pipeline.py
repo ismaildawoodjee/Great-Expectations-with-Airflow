@@ -50,12 +50,12 @@ extract_retail_data = PostgresOperator(
 )
 
 # Have to be inside the `airflow` folder in order to run validation CLI command
-# validate_source_retail_data = BashOperator(
-#     dag=dag,
-#     task_id="validate_source_retail_data",
-#     bash_command="cd /opt/airflow/; \
-# great_expectations --v3-api checkpoint run retail_source_checkpoint",
-# )
+validate_source_retail_data = BashOperator(
+    dag=dag,
+    task_id="validate_source_retail_data",
+    bash_command="cd /opt/airflow/; \
+great_expectations --v3-api checkpoint run retail_source_checkpoint",
+)
 
 # Moves CSV file from temp folder to S3 data lake raw folder
 load_retail_data = PythonOperator(
@@ -84,8 +84,8 @@ end_of_data_pipeline = DummyOperator(dag=dag, task_id="end_of_data_pipeline")
 
 (
     extract_retail_data
+    >> validate_source_retail_data
     >> load_retail_data
     >> end_of_data_pipeline
-    # >> validate_source_retail_data
     # >> validate_load_retail_data
 )

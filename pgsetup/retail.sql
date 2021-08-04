@@ -1,6 +1,6 @@
 -- OLTP data mounted onto a Postgres container volume
 -- This will be copied to a flat file, which will then be sent to S3 data lake
-CREATE SCHEMA ecommerce;
+CREATE SCHEMA IF NOT EXISTS ecommerce;
 
 CREATE TABLE ecommerce.retail_profiling
 (

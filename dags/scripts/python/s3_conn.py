@@ -38,15 +38,12 @@ batch_request = BatchRequest(
     data_asset_name="retail_profiling",
     batch_spec_passthrough={
         "reader_method": "read_csv",
-        "reader_options": {
-            "nrows": 1000
-        }
-    }
+        "reader_options": {"nrows": 1000},
+    },
 )
 
 validator = context.get_validator(
-    batch_request=batch_request,
-    expectation_suite_name="retail_source_suite"
+    batch_request=batch_request, expectation_suite_name="retail_source_suite"
 )
 
 # print(validator.head())

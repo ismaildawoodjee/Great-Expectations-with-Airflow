@@ -1,6 +1,7 @@
 .venv
 .vscode
 .metals
+.env
 logs
 __pycache__
 DOC.md

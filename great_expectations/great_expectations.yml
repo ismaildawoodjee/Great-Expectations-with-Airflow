@@ -15,22 +15,47 @@ config_version: 3.0
 # add a new datasource. Read more at https://docs.greatexpectations.io/en/latest/reference/core_concepts/datasource.html
 datasources:
   retail_source:
-    module_name: great_expectations.datasource
     class_name: Datasource
     data_connectors:
       default_runtime_data_connector_name:
+        class_name: RuntimeDataConnector
         batch_identifiers:
           - default_identifier_name
         module_name: great_expectations.datasource.data_connector
-        class_name: RuntimeDataConnector
       default_inferred_data_connector_name:
+        class_name: InferredAssetSqlDataConnector
         include_schema_name: true
         module_name: great_expectations.datasource.data_connector
-        class_name: InferredAssetSqlDataConnector
+    module_name: great_expectations.datasource
     execution_engine:
-      connection_string: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      module_name: great_expectations.execution_engine
       class_name: SqlAlchemyExecutionEngine
+      module_name: great_expectations.execution_engine
+      connection_string: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+  retail_load:
+    class_name: Datasource
+    data_connectors:
+      default_inferred_data_connector_name:
+        bucket: greatex-bucket
+        prefix: raw/retail/
+        class_name: InferredAssetS3DataConnector
+        default_regex:
+          group_names:
+            - prefix
+            - year
+            - month
+            - day
+            - data_asset_name
+          pattern: (.*)/(\d{4})/(\d{2})/(\d{2})/(.*)\.csv
+        module_name: great_expectations.datasource.data_connector
+      default_runtime_data_connector_name:
+        class_name: RuntimeDataConnector
+        batch_identifiers:
+          - default_identifier_name
+        module_name: great_expectations.datasource.data_connector
+    module_name: great_expectations.datasource
+    execution_engine:
+      class_name: PandasExecutionEngine
+      module_name: great_expectations.execution_engine
 config_variables_file_path: uncommitted/config_variables.yml
 
 # The plugins_directory will be added to your python path for custom modules
@@ -90,6 +115,6 @@ data_docs_sites:
       class_name: DefaultSiteIndexBuilder
 
 anonymous_usage_statistics:
-  enabled: true
   data_context_id: bc4b215d-335f-4e76-9683-ca3c7159dffc
+  enabled: true
 notebooks:

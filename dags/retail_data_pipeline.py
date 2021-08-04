@@ -26,18 +26,18 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
 }
 
+
 def get_datepart(ds, part: int):
-    return ds.split('-')[part]
-    
+    return ds.split("-")[part]
+
+
 # Running DAG everyday at midnight Malaysia time (1600 UTC)
 dag = DAG(
     dag_id="retail_data_pipeline",
     default_args=default_args,
     schedule_interval="0 16 * * *",
     max_active_runs=1,
-    user_defined_macros={
-        "datepart": get_datepart
-    }
+    user_defined_macros={"datepart": get_datepart},
 )
 
 # Copies PostgresDB data into a CSV file in the temporary folder
@@ -65,19 +65,19 @@ load_retail_data = PythonOperator(
     op_kwargs={
         "file_name": "/temp/retail_profiling.csv",
         "key": "raw/retail/\
-{{ datepart(ds, 0) }}/{{ datepart(ds, 1) }}/{{ datepart(ds, 2) }} \
+{{ datepart(ds, 0) }}/{{ datepart(ds, 1) }}/{{ datepart(ds, 2) }}\
 /retail_profiling.csv",  # `ds` is the Airflow jinja macro for execution date
         "bucket_name": BUCKET_NAME,
         "remove_local": True,
     },
 )
 
-# validate_load_retail_data = BashOperator(
-#     dag=dag,
-#     task_id="validate_load_retail_data",
-#     bash_command="cd /opt/airflow/; \
-# great_expectations --v3-api checkpoint run retail_load_checkpoint",
-# )
+validate_load_retail_data = BashOperator(
+    dag=dag,
+    task_id="validate_load_retail_data",
+    bash_command="cd /opt/airflow/; \
+great_expectations --v3-api checkpoint run retail_load_checkpoint",
+)
 
 end_of_data_pipeline = DummyOperator(dag=dag, task_id="end_of_data_pipeline")
 
@@ -86,6 +86,6 @@ end_of_data_pipeline = DummyOperator(dag=dag, task_id="end_of_data_pipeline")
     extract_retail_data
     >> validate_source_retail_data
     >> load_retail_data
+    >> validate_load_retail_data
     >> end_of_data_pipeline
-    # >> validate_load_retail_data
 )

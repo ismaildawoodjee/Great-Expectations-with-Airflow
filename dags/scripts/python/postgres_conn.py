@@ -1,4 +1,3 @@
-
 # Running this script will populate the great_expectations.yml file
 # I ran this inside the container (perhaps could be put as a Task in Airflow?)
 # After that this is no longer required
@@ -7,7 +6,7 @@ from ruamel import yaml
 from pprint import pprint
 
 import great_expectations as ge
-from great_expectations.core.batch import BatchRequest, RuntimeBatchRequest
+from great_expectations.core.batch import RuntimeBatchRequest
 
 # should be stored as an environment variable
 CONNECTION_STRING = "postgresql+psycopg2://airflow:airflow@postgres:5432/airflow"
@@ -34,7 +33,7 @@ datasource_config = {
     },
 }
 
-checkpoint_config = """
+checkpoint_yaml = """
 name: retail_source_checkpoint
 config_version: 1.0
 template_name:
@@ -74,16 +73,14 @@ ge_cloud_id:
 context.test_yaml_config(yaml.dump(datasource_config))
 context.add_datasource(**datasource_config)
 
-context.add_checkpoint(**yaml.load(checkpoint_config))
+context.add_checkpoint(**yaml.load(checkpoint_yaml))
 context.run_checkpoint(checkpoint_name="retail_source_checkpoint")
 
 batch_request = RuntimeBatchRequest(
     datasource_name="retail_source",
     data_connector_name="default_runtime_data_connector_name",
     data_asset_name="ecommerce.retail_profiling",  # this can be anything that identifies this data
-    runtime_parameters={
-        "query": "SELECT * from ecommerce.retail_profiling LIMIT 1000"
-    },
+    runtime_parameters={"query": "SELECT * from ecommerce.retail_profiling LIMIT 1000"},
     batch_identifiers={
         "default_identifier_name": "First 1000 rows for profiling retail source data"
     },

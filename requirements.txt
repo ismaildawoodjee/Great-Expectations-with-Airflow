@@ -1,6 +1,2 @@
 great_expectations
 boto3
-fsspec
-s3fs
-psycopg2-binary
-sqlalchemy
